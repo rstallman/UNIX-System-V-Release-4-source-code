@@ -1,0 +1,56 @@
+#ident	"@(#)mk:target.dirs	1.2"
+# The format of this file is:
+#	DIRECTORY	[MODE	OWNER	GROUP]
+# The MODE/OWNER/GROUP may be left blank or else 
+# dashes may be used as place holders.
+/dev
+/etc
+/etc/cron.d
+/etc/fs
+/etc/fs/bfs
+/etc/fs/events
+/etc/fs/proc
+/etc/fs/s5
+/etc/nserve
+/export
+/home
+/mnt
+/opt
+/proc
+/sbin
+/stand
+/tmp
+/usr
+/usr/bin
+/usr/games
+/usr/include
+/usr/lib
+/usr/lib/fs
+/usr/sadm
+/usr/sadm/sysadm
+/usr/sadm/sysadm/add-ons
+/usr/sbin
+/usr/share
+/usr/share/lib
+/usr/share/man
+/usr/shlib
+/usr/src
+/usr/ucb
+/usr/ucbinclude
+/usr/ucblib
+/var
+/var/adm
+/var/cron
+/var/mail
+/var/opt
+/var/preserve
+/var/saf
+/var/spool
+/var/spool/cron
+/var/spool/cron/crontabs
+/var/spool/cron/atjobs
+/var/spool/lp
+/var/spool/uucp
+/var/spool/uucppublic
+/var/tmp
+/var/uucp

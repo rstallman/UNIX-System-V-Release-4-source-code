@@ -1,0 +1,186 @@
+#ident	"@(#)pkg.inet:postinstall	1.13"
+#
+# Initialize FAILURE to 1 (fatal error)
+#
+FAILURE=1
+#
+# Install INET drivers
+#
+BOOT=/boot
+MASTER=/etc/master.d
+
+installf $PKGINST $BOOT/APP f || exit $FAILURE
+installf $PKGINST $MASTER/app f || exit $FAILURE
+
+installf $PKGINST $BOOT/ARP f || exit $FAILURE
+installf $PKGINST $MASTER/arp f || exit $FAILURE
+
+installf $PKGINST $BOOT/ICMP f || exit $FAILURE
+installf $PKGINST $MASTER/icmp f || exit $FAILURE
+
+installf $PKGINST $BOOT/IP f || exit $FAILURE
+installf $PKGINST $MASTER/ip f || exit $FAILURE
+
+installf $PKGINST $BOOT/LLCLOOP f || exit $FAILURE
+installf $PKGINST $MASTER/llcloop f || exit $FAILURE
+
+installf $PKGINST $BOOT/RAWIP f || exit $FAILURE
+installf $PKGINST $MASTER/rawip f || exit $FAILURE
+
+installf $PKGINST $BOOT/TCP f || exit $FAILURE
+installf $PKGINST $MASTER/tcp f || exit $FAILURE
+
+installf $PKGINST $BOOT/UDP f || exit $FAILURE
+installf $PKGINST $MASTER/udp f || exit $FAILURE
+
+CMAJOR=`/etc/drvinstall -d $BOOT/CLONE -v 1.0 -nb` || exit $FAILURE
+
+MAJOR=`/etc/drvinstall -d $BOOT/APP -v 1.0` || exit $FAILURE
+MAJOR=`/etc/drvinstall -d $BOOT/ARP -v 1.0` || exit $FAILURE
+installf $PKGINST /dev/arp c $CMAJOR $MAJOR 0600 root other || exit $FAILURE
+MAJOR=`/etc/drvinstall -d $BOOT/ICMP -v 1.0` || exit $FAILURE
+installf $PKGINST /dev/icmp c $CMAJOR $MAJOR 0600 root other || exit $FAILURE
+MAJOR=`/etc/drvinstall -d $BOOT/IP -v 1.0` || exit $FAILURE
+installf $PKGINST /dev/ip c $CMAJOR $MAJOR 0600 root other || exit $FAILURE
+MAJOR=`/etc/drvinstall -d $BOOT/LLCLOOP -v 1.0` || exit $FAILURE
+installf $PKGINST /dev/loop c $CMAJOR $MAJOR 0600 root other || exit $FAILURE
+MAJOR=`/etc/drvinstall -d $BOOT/RAWIP -v 1.0` || exit $FAILURE
+installf $PKGINST /dev/rawip c $CMAJOR $MAJOR 0600 root other || exit $FAILURE
+MAJOR=`/etc/drvinstall -d $BOOT/TCP -v 1.0` || exit $FAILURE
+installf $PKGINST /dev/tcp c $CMAJOR $MAJOR 0666 root other || exit $FAILURE
+MAJOR=`/etc/drvinstall -d $BOOT/UDP -v 1.0` || exit $FAILURE
+installf $PKGINST /dev/udp c $CMAJOR $MAJOR 0666 root other || exit $FAILURE
+
+#
+#	install tty compatibility module
+#
+installf $PKGINST $BOOT/TTCOMPAT f || exit $FAILURE
+installf $PKGINST $MASTER/ttcompat f || exit $FAILURE
+/etc/drvinstall -d $BOOT/TTCOMPAT -v 1.0 || exit $FAILURE
+
+#
+#	put the correct major # in the slink configuration script
+#	don't error out if this fails -- they can recover
+#
+EMDMAJOR=`/etc/getmajor EMD` 
+if [ -z "$EMDMAJOR" ]
+then
+	if [ -f /etc/emd?*.addr ]
+	then
+		EMDMAJOR="`echo /etc/emd?*.addr | sed -e 's%/etc/emd%%;s%.addr%%'`"
+	fi
+fi
+if [ ! -z "$EMDMAJOR" -a -f /dev/emd${EMDMAJOR} ]
+then
+	echo "g/ en 0/s// en ${EMDMAJOR}/\nw\nq" >/tmp/.inet.eddd
+	ed -s /etc/inet/strcf </tmp/.inet.eddd
+	rm -f /tmp/.inet.eddd
+else
+	echo "
+**WARNING** could not get the device number for emd.
+Before starting the TCP/IP network, edit /etc/inet/strcf and change
+the zero on this line:\n"
+	grep '/dev/emd en 0' /etc/inet/strcf
+	echo "
+to the device (slot) number of your ethernet board.  After you've built
+a new kernel containing the ethernet driver, you may get this number by
+executing the command \"/etc/getmajor EMD\"\n"
+fi
+
+#
+#	add the appropriate entries to /etc/netconfig
+#
+
+if grep '[ 	]inet[ 	][ 	]*tcp[ 	][ 	]*/dev/tcp[ 	]' /etc/netconfig >/dev/null 2>&1
+then
+	: Already there!
+else
+	echo "tcp	tpi_cots_ord	v	inet	tcp	/dev/tcp	/usr/lib/tcpip.so" >>/etc/netconfig
+fi
+
+if grep '[ 	]inet[ 	][ 	]*udp[ 	][ 	]*/dev/udp[ 	]' /etc/netconfig >/dev/null 2>&1
+then
+	: Already there!
+else
+	echo "udp	tpi_clts  	v	inet	udp	/dev/udp	/usr/lib/tcpip.so" >>/etc/netconfig
+fi
+
+if grep '[ 	]inet[ 	][ 	]*icmp[ 	][ 	]*/dev/icmp[ 	]' /etc/netconfig >/dev/null 2>&1
+then
+	: Already there!
+else
+	echo "icmp	tpi_raw  	-	inet	icmp	/dev/icmp	/usr/lib/tcpip.so" >>/etc/netconfig
+fi
+
+if grep '[ 	]inet[ 	][ 	]*-[ 	][ 	]*/dev/rawip[ 	]' /etc/netconfig >/dev/null 2>&1
+then
+	: Already there!
+else
+	echo "rawip	tpi_raw  	-	inet	-	/dev/rawip	/usr/lib/tcpip.so" >>/etc/netconfig
+fi
+
+#
+#	if the admin knows the ip address, put it in /etc/hosts
+#
+NODENAME=`uname -n`
+if [ ! -z "${NODENAME}" ]
+then
+	echo "
+Do you want to add the IP address for host ${NODENAME} to /etc/hosts? (y,n,?)  \c"
+	read ans
+	if [ "${ans}" = '?' ]
+	then
+		echo "
+The IP address is the address by which ${NODENAME} will be known on the Internet.
+These addresses must be administered by a central authority on your network.
+IP addresses are written as four decimal integers, separated by decimal points
+(e.g., 128.10.2.70).
+
+Do you want to add the IP address for host ${NODENAME} to /etc/hosts? (y,n)  \c"
+
+		read ans
+	fi
+	if [ "${ans}" = "y" ]
+	then
+		echo "
+Enter the IP address for host ${NODENAME}:  \c"
+		read ipaddr
+		# syntax checking too difficult here
+		if [ ! -z "${ipaddr}" ]
+		then
+			echo "${ipaddr}\t${NODENAME}" >>/etc/hosts
+		fi
+	fi
+fi
+
+#
+#	Create /etc/passwd and /etc/group entry for UID_NOBODY
+#	so in.fingerd can run
+#
+if grep '^nobody:' /etc/passwd >/dev/null 2>/dev/null
+then
+	: already there ;
+else
+	passmgmt -a -c 'unprivileged user' -h /nonexistent -s /noshell \
+		-u 60001 -g 60001 nobody
+fi
+if grep '^nobody:' /etc/group >/dev/null 2>/dev/null
+then
+	: already there ;
+else
+	echo 'nobody::60001:' >>/etc/group
+fi
+
+#
+#	Create inetd as a port monitor.  Version doesn't matter
+#	since inetd doesn't usr _pmtab.
+#
+
+sacadm -a -p inetd -t inetd -c /usr/sbin/inetd -v 1 -y "internet daemon"
+
+#
+#	wrap up with installf -f  and exit message (required reboot)
+#
+
+installf -f $PKGINST
+exit 	10

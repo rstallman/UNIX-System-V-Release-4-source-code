@@ -1,0 +1,21 @@
+#ident	"@(#)pkg.bnu:pkginfo	1.5"
+
+ARCH="3b2"
+# BASEDIR="/"
+CATEGORY="system"
+CLASSES="none need OAMadmin OAMmif"
+# DESC=
+# EMAIL=
+# HOTLINE=
+# ISTATES=
+MAXINST=1
+NAME="Basic Networking Utilities"
+# ORDER=
+PKG="bnu"
+PREDEPEND="uucp"
+# PSTAMP=
+# RSTATES=
+# ULIMIT=
+# VENDOR=
+# VERSION=
+# VSTOCK=

@@ -1,0 +1,231 @@
+#ident	"@(#)pkg.nlp:lp/prototype	1.21"
+
+i pkginfo
+i request
+i depend
+i preinstall
+i preremove
+i postinstall
+i i.cron
+i r.cron
+
+
+#
+#	These are the binaries for LP.
+#
+#	There are additional binaries which are used internally by
+#	LP.  These are in a separate section below.
+#
+
+!default 555 lp lp
+f none /usr/sbin/dumpolp
+f none /usr/sbin/lpadmin
+f none /usr/sbin/lpsystem
+f none /usr/sbin/lpforms
+f none /usr/sbin/lpmove
+f none /usr/sbin/lpshut
+f none /usr/sbin/lpusers
+f none /usr/sbin/accept
+l none /usr/sbin/reject=/usr/sbin/accept
+f none /usr/sbin/lpfilter
+f none /usr/lib/lp/lpsched 4111 root lp
+f none /usr/lib/lp/lpexec 111 lp lp
+f none /usr/lib/lp/lpNet 111 lp lp
+f none /usr/lib/lp/lpdata 110 lp lp
+
+s none /usr/lib/lpadmin=/usr/sbin/lpadmin
+s none /usr/lib/lpforms=/usr/sbin/lpforms
+s none /usr/lib/lpmove=/usr/sbin/lpmove
+s none /usr/lib/lpshut=/usr/sbin/lpshut
+s none /usr/lib/lpusers=/usr/sbin/lpusers
+s none /usr/lib/accept=/usr/sbin/accept
+s none /usr/lib/reject=/usr/sbin/reject
+s none /usr/lib/lpfilter=/usr/sbin/lpfilter
+s none /usr/lib/lpsched=/usr/lib/lp/lpsched
+
+d none /usr/lib/lp/bin
+f none /usr/lib/lp/bin/alert.proto 0444 lp lp
+f none /usr/lib/lp/bin/drain.output
+f none /usr/lib/lp/bin/lp.cat
+f none /usr/lib/lp/bin/lp.set
+f none /usr/lib/lp/bin/lp.tell
+f none /usr/lib/lp/bin/slow.filter
+
+#
+# enable/disable are made setuid by postinstall if user so chooses
+#
+f none /usr/bin/enable=/usr/sbin/accept
+l none /usr/bin/disable=/usr/bin/enable
+f none /usr/bin/cancel
+f none /usr/bin/lp
+f none /usr/bin/lpstat
+
+f bsd  /usr/ucb/lpc=/usr/bin/lpc
+f bsd  /usr/ucb/lpq=/usr/bin/lpq
+f bsd  /usr/ucb/lpr=/usr/bin/lpr
+f bsd  /usr/ucb/lprm=/usr/bin/lprm
+f bsd  /usr/ucb/lptest=/usr/bin/lptest
+
+d none /etc/init.d 555 root sys
+f none /etc/init.d/lp 0555 root sys
+
+# Make linked copies of the startup/shutdown scripts in their
+# proper places. Give the startup script a high number so that
+# LP is one of the last utilities to start; conversely, give the
+# shutdown script a low number so that LP is one of the first to
+# stop. This makes sure that anything that LP needs is available.
+d none	/etc/rc0.d 755 root sys
+d none	/etc/rc2.d 755 root sys
+l none	/etc/rc0.d/K20lp=/etc/init.d/lp
+l none	/etc/rc2.d/S80lp=/etc/init.d/lp
+
+#
+#	This is the coniguration directory system for lp.
+#	Included in here are the filter table, the standard
+#	printer interface and any models salvaged by preinstall
+#
+
+!default 775 lp lp
+d none /etc/lp
+d none /etc/lp/classes
+f none /etc/lp/filter.table.i
+f none /etc/lp/filter.table=/etc/lp/filter.table.i
+d none /etc/lp/forms
+d none /etc/lp/interfaces
+f none /etc/lp/lpNetData
+d none /usr/lib/lp/model
+f none /usr/lib/lp/model/standard
+s none /etc/lp/model=/usr/lib/lp/model
+d none /etc/lp/printers
+d none /etc/lp/pwheels
+d none /var/lp
+d none /var/lp/logs
+d none /var/spool/lp
+d none /var/spool/lp/admins
+d none /var/spool/lp/fifos
+d none /var/spool/lp/fifos/private 771 lp lp
+d none /var/spool/lp/fifos/public 773 lp lp
+d none /var/spool/lp/requests
+d none /var/spool/lp/system
+d none /var/spool/lp/tmp
+s none /var/spool/lp/temp=/var/spool/lp/tmp
+s none /etc/lp/logs=/var/lp/logs
+#
+#	Add symbolic links for backwards compatability
+#
+
+s none /var/spool/lp/bin=/usr/lib/lp/bin
+s none /var/spool/lp/admins/lp=/etc/lp
+
+#
+#	Next, install a crontab entry for lp.
+#
+
+e cron	/var/spool/cron/crontabs/lp
+
+#
+#	Then the Operations, Administration, and Maintenance (OAM) Interface
+#
+!OAMBASE=/usr/sadm/sysadm
+!PKGINST=lp
+!PKGSAV=/var/sadm/pkg/$PKGINST/sav
+#
+#	OAM directories: default owner=root group=sys mode=0755
+#
+!default 0755 root sys
+d none	/usr/sadm	?	?	?
+d none	$OAMBASE	?	?	?
+d none  $OAMBASE/menu	?	?	?
+d none	/var/sadm	?	?	?
+d none	/var/sadm/pkg	?	?	?
+x OAMadmin	/var/sadm/pkg/$PKGINST
+x OAMadmin	$PKGSAV
+d OAMmif	$PKGSAV/intf_install
+#
+d OAMadmin	$OAMBASE/menu/printers	?	?	?
+d OAMadmin	$OAMBASE/menu/printers/classes
+d OAMadmin	$OAMBASE/menu/printers/filters
+d OAMadmin	$OAMBASE/menu/printers/forms
+d OAMadmin	$OAMBASE/menu/printers/operations
+d OAMadmin	$OAMBASE/menu/printers/printers
+d OAMadmin	$OAMBASE/menu/printers/priorities
+d OAMadmin	$OAMBASE/menu/printers/reports
+d OAMadmin	$OAMBASE/menu/printers/requests
+d OAMadmin	$OAMBASE/menu/printers/systems
+#
+#	administrative files: default owner=root group=sys mode=0755
+#
+!default 0644 root sys
+f OAMmif	$PKGSAV/intf_install/lp.mi
+f OAMadmin	$OAMBASE/menu/printers/Help
+f OAMadmin	$OAMBASE/menu/printers/Menu.lp
+f OAMadmin	$OAMBASE/menu/printers/classes/Form.add
+f OAMadmin	$OAMBASE/menu/printers/classes/Form.list
+f OAMadmin	$OAMBASE/menu/printers/classes/Form.modify
+f OAMadmin	$OAMBASE/menu/printers/classes/Form.remove
+f OAMadmin	$OAMBASE/menu/printers/classes/Help
+f OAMadmin	$OAMBASE/menu/printers/classes/Text.add
+f OAMadmin	$OAMBASE/menu/printers/classes/Text.error
+f OAMadmin	$OAMBASE/menu/printers/classes/classes.ch
+f OAMadmin	$OAMBASE/menu/printers/classes/cont.slks
+f OAMadmin	$OAMBASE/menu/printers/classes/members.ch
+f OAMadmin	$OAMBASE/menu/printers/classes/printers.ch
+f OAMadmin	$OAMBASE/menu/printers/filters/Form.add
+f OAMadmin	$OAMBASE/menu/printers/filters/Form.add.2
+f OAMadmin	$OAMBASE/menu/printers/filters/Form.list
+f OAMadmin	$OAMBASE/menu/printers/filters/Form.modify.1
+f OAMadmin	$OAMBASE/menu/printers/filters/Form.modify.2
+f OAMadmin	$OAMBASE/menu/printers/filters/Form.modify.3
+f OAMadmin	$OAMBASE/menu/printers/filters/Form.remove
+f OAMadmin	$OAMBASE/menu/printers/filters/Help
+f OAMadmin	$OAMBASE/menu/printers/filters/filter.ch
+f OAMadmin	$OAMBASE/menu/printers/filters/printers.ch
+f OAMadmin	$OAMBASE/menu/printers/forms/Form.add
+f OAMadmin	$OAMBASE/menu/printers/forms/Form.display
+f OAMadmin	$OAMBASE/menu/printers/forms/Form.modify
+f OAMadmin	$OAMBASE/menu/printers/forms/Form.mount
+f OAMadmin	$OAMBASE/menu/printers/forms/Form.remove
+f OAMadmin	$OAMBASE/menu/printers/forms/Form.status
+f OAMadmin	$OAMBASE/menu/printers/forms/Form.unmount
+f OAMadmin	$OAMBASE/menu/printers/forms/Help
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.accept
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.default
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.disable
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.enable
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.mount
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.reject
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.start
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.status
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.stop
+f OAMadmin	$OAMBASE/menu/printers/operations/Form.unmount
+f OAMadmin	$OAMBASE/menu/printers/operations/Help
+f OAMadmin	$OAMBASE/menu/printers/operations/Menu.opers
+f OAMadmin	$OAMBASE/menu/printers/operations/operations.men
+f OAMadmin	$OAMBASE/menu/printers/operations/startfailed.t
+f OAMadmin	$OAMBASE/menu/printers/operations/stopfailed.t
+f OAMadmin	$OAMBASE/menu/printers/printers/Form.add
+f OAMadmin	$OAMBASE/menu/printers/printers/Form.display
+f OAMadmin	$OAMBASE/menu/printers/printers/Form.modify
+f OAMadmin	$OAMBASE/menu/printers/printers/Form.remove
+f OAMadmin	$OAMBASE/menu/printers/printers/Help
+f OAMadmin	$OAMBASE/menu/printers/priorities/Form.list
+f OAMadmin	$OAMBASE/menu/printers/priorities/Form.priority
+f OAMadmin	$OAMBASE/menu/printers/priorities/Form.set
+f OAMadmin	$OAMBASE/menu/printers/priorities/Help
+f OAMadmin	$OAMBASE/menu/printers/priorities/priorities.men
+f OAMadmin	$OAMBASE/menu/printers/reports/Form.fonts
+f OAMadmin	$OAMBASE/menu/printers/reports/Form.forms
+f OAMadmin	$OAMBASE/menu/printers/reports/Form.printers
+f OAMadmin	$OAMBASE/menu/printers/reports/Form.requests
+f OAMadmin	$OAMBASE/menu/printers/reports/Form.service
+f OAMadmin	$OAMBASE/menu/printers/reports/Help
+f OAMadmin	$OAMBASE/menu/printers/requests/Form.cancel
+f OAMadmin	$OAMBASE/menu/printers/requests/Form.hold
+f OAMadmin	$OAMBASE/menu/printers/requests/Form.move
+f OAMadmin	$OAMBASE/menu/printers/requests/Form.resume
+f OAMadmin	$OAMBASE/menu/printers/requests/Help
+f OAMadmin	$OAMBASE/menu/printers/systems/Form.add
+f OAMadmin	$OAMBASE/menu/printers/systems/Form.display
+f OAMadmin	$OAMBASE/menu/printers/systems/Form.modify
+f OAMadmin	$OAMBASE/menu/printers/systems/Form.remove
+f OAMadmin	$OAMBASE/menu/printers/systems/Help

@@ -1,0 +1,20 @@
+#ident	"@(#)pkg.windowing:pkginfo	1.3"
+
+ARCH="3b2"
+# BASEDIR="/"
+CATEGORY="system"
+CLASSES="none"
+# DESC=
+# EMAIL=
+# HOTLINE=
+# ISTATES=
+MAXINST=1
+NAME="AT&T Windowing Utilities"
+# ORDER=
+PKG="windowing"
+# PSTAMP=
+# RSTATES=
+# ULIMIT=
+# VENDOR=
+VERSION=""
+# VSTOCK=

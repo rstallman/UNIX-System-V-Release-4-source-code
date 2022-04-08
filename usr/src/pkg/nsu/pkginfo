@@ -1,0 +1,21 @@
+#ident	"@(#)pkg.nsu:pkginfo	1.3"
+
+ARCH="3b2"
+# BASEDIR=/
+CATEGORY="system"
+CLASSES="none pt build"
+# DESC=
+# EMAIL=
+# HOTLINE=
+# ISTATES=
+MAXINST=1
+NAME="Networking Support Utilities"
+# ORDER=
+PKG="nsu"
+PREDEPEND="nsu"
+# PSTAMP=
+# RSTATES=
+# ULIMIT=
+# VENDOR=
+VERSION="2.0"
+# VSTOCK=

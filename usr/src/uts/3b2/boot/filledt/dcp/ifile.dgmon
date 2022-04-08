@@ -1,0 +1,17 @@
+/* #ident	"@(#)boot:boot/filledt/dcp/ifile.dgmon	1.1"	*/
+MEMORY	{
+	CONTROL:	origin	=	0x2004480,	length	=	0x7B80
+
+}
+
+SECTIONS	{
+	.text:		       { } > CONTROL
+	.data:	               {
+				*(.data)
+				*(.data1)
+				*(.rodata)
+				*(.rodata1)
+				 } > CONTROL
+	.bss:   	       { } > CONTROL
+
+}
